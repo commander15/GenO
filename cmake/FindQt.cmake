@@ -1,10 +1,6 @@
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-if (Qt_FOUND)
-    return()
-endif()
-
 set(Modules ${Qt_FIND_COMPONENTS})
 
 set(Versions 5 6)
