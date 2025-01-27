@@ -10,17 +10,49 @@ class Sample : public GenO::Object
     Q_GADGET
     Q_PROPERTY(QString name MEMBER name)
 
-    G_OBJECT
-    G_RESOURCE("Sample")
+    G_OBJECT(Sample)
+    G_RESOURCE("/samples")
 
 public:
     QString name;
 };
 
+G_REGISTER(Sample)
+
+class Experiment : public GenO::Object
+{
+    Q_GADGET
+    Q_PROPERTY(QString name MEMBER name)
+    Q_PROPERTY(Sample sample MEMBER sample)
+
+    G_OBJECT(Experiment)
+    G_RESOURCE("/experiments")
+
+public:
+    QString name;
+    Sample sample;
+};
+
+G_REGISTER(Experiment)
+
+class ComplexExperiment : public Experiment
+{
+    Q_GADGET
+    Q_PROPERTY(QList<Sample> samples MEMBER samples)
+
+    G_OBJECT(ComplexExperiment)
+    G_RESOURCE("/complex/experiments")
+
+public:
+    QList<Sample> samples;
+};
+
+G_REGISTER(ComplexExperiment)
+
 class ObjectTest : public testing::Test
 {
 public:
-    Sample sample;
+    Experiment experiment;
 };
 
 #endif // OBJECTTEST_H
