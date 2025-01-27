@@ -18,7 +18,7 @@ public:
     virtual bool isValid() const = 0;
     virtual bool isEmpty() const = 0;
 
-    virtual const QMetaObject metaObject() const = 0;
+    virtual const QMetaObject *metaObject() const = 0;
 };
 
 } // namespace GenO
