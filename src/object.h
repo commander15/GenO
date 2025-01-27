@@ -3,19 +3,45 @@
 
 #include <GenO/global.h>
 #include <GenO/objectinterface.h>
+#include <GenO/serialization.h>
 
 #include <QtCore/qshareddata.h>
+#include <QtCore/qmetatype.h>
 #include <QtCore/qmetaobject.h>
 
-#define G_OBJECT         G_OBJECT_IMPL
-#define G_RESOURCE(Name) Q_CLASSINFO("G.Resource", Name)
-#define G_ID(ID)         Q_CLASSINFO("G.Id", ID)
+#define G_OBJECT(ClassName)   G_OBJECT_IMPL(ClassName) G_METHODS_IMPL(ClassName)
+#define G_DATA(ClassName)     G_OBJECT_IMPL(ClassName)
 
-#define G_OBJECT_IMPL \
+#define G_RESOURCE(Endpoint)  Q_CLASSINFO("G.Endpoint", Endpoint)
+#define G_ID(ID)              Q_CLASSINFO("G.Id", ID)
+
+#define G_METHODS(ClassName)  G_METHODS_IMPL(ClassName)
+#define G_REGISTER(ClassName) G_REGISTER_IMPL(ClassName)
+
+#define G_OBJECT_IMPL(ClassName) \
 public: \
-    const QMetaObject instanceMetaObject() const override \
-    { return staticMetaObject; } \
-private:
+    const QMetaObject *instanceMetaObject() const override \
+    { return &ClassName::staticMetaObject; } \
+protected: \
+    void registerType() const override { \
+        qRegisterMetaType<ClassName>(); \
+        if (QMetaType::hasRegisteredConverterFunction<QVariantList, QList<ClassName>>()) \
+            return; \
+        QMetaType::registerConverter<QVariantList, QList<ClassName>>([](const QVariantList &list) { \
+                QList<ClassName> result; \
+                for (const QVariant &item : list) \
+                    if (item.canConvert<ClassName>()) \
+                        result.append(item.value<ClassName>()); \
+                return result; \
+        }); \
+    }
+
+#define G_METHODS_IMPL(ClassName) \
+public: \
+    static ClassName fromJson(const QJsonObject &json) \
+    { ClassName object; GenO::Serialization::load(json, &object); return object; }
+
+#define G_REGISTER_IMPL(ClassName) //Q_DECLARE_METATYPE(ClassName)
 
 namespace GenO {
 
@@ -39,11 +65,19 @@ public:
     void setProperty(const QString &name, const QVariant &value);
     QStringList propertyNames() const override;
 
+    bool isSubObject(const QString &propertyName) const;
+
+    bool isList(const QString &propertyName) const;
+    QMetaType listItemType(const QString &propertyName) const;
+
     bool isValid() const override;
     bool isEmpty() const override;
 
-    const QMetaObject metaObject() const override;
-    virtual const QMetaObject instanceMetaObject() const;
+    static Object fromJson(const QJsonObject &json);
+    QJsonObject toJsonObject() const;
+
+    const QMetaObject *metaObject() const override;
+    virtual const QMetaObject *instanceMetaObject() const;
 
     bool operator==(const Object &other) const;
     bool operator!=(const Object &other) const;
@@ -58,6 +92,7 @@ protected:
     Object(const QSharedDataPointer<ObjectData> &data);
 
     void init() const;
+    virtual void registerType() const;
 
     QVariant readProperty(const QString &name) const override final;
     bool writeProperty(const QString &name, const QVariant &value) override final;
@@ -65,6 +100,7 @@ protected:
     QSharedDataPointer<ObjectData> d_ptr;
 
     friend class ObjectData;
+    friend class Serialization;
 };
 
 class GENO_EXPORT ObjectData : public QSharedData, public ObjectInterface
@@ -73,7 +109,7 @@ public:
     ObjectData() = default;
     ObjectData(const ObjectData &other) = default;
 
-    void init(const QMetaObject &meta);
+    void init(const QMetaObject *meta);
 
     bool hasProperty(const QString &name) const override;
     QVariant readProperty(const QString &name) const override;
@@ -86,17 +122,17 @@ public:
     bool isValid() const override { return true; }
     bool isEmpty() const override { return properties.isEmpty(); }
 
-    inline const QMetaObject metaObject() const override
+    inline const QMetaObject *metaObject() const override
     { return m_metaObject; }
 
     virtual ObjectData *clone() const
     { return nullptr; }
 
+    QHash<QString, QString> attributes;
     QMap<QString, QVariant> properties;
 
 private:
-    QMetaObject m_metaObject;
-    bool m_initialized = false;
+    const QMetaObject *m_metaObject = nullptr;
 
     friend class Object;
 };

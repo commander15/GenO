@@ -11,7 +11,7 @@ public:
     ObjectData *clone() const override;
 };
 
-static bool sameMetaObject(const QMetaObject &o1, const QMetaObject &o2);
+static bool sameMetaObject(const QMetaObject *o1, const QMetaObject *o2);
 
 } // namespace GenO
 
