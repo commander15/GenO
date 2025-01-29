@@ -45,5 +45,7 @@ QDebug operator<<(QDebug debug, GenO::Object &object)
 {
     QJsonObject json;
     GenO::JsonSerialization::save(json, &object);
-    return debug << json;
+
+    debug.noquote().nospace() << object.metaObject()->className() << ' ' << json;
+    return debug.resetFormat();
 }
