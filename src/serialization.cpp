@@ -3,40 +3,20 @@
 #include <GenO/object.h>
 #include <GenO/jsonserialization.h>
 
+#include <QtCore/qjsonobject.h>
+
 namespace GenO {
 
-void Serialization::load(const QVariant &source, Object *object, int format)
+void Serialization::load(const QVariant &source, Object *object)
 {
-    load(source.data(), object, format);
+    if (JsonSerialization::support(source.metaType()))
+        JsonSerialization::load(source, object);
 }
 
-void Serialization::save(QVariant &source, const Object *object, int format)
+void Serialization::save(QVariant &source, const Object *object)
 {
-    save(source.data(), object, format);
-}
-
-void Serialization::load(const void *source, Object *object, int format)
-{
-    if (source == nullptr)
-        return;
-
-    switch (format) {
-    case Json:
-        JsonSerialization::load(*static_cast<const QJsonObject *>(source), object);
-        break;
-    }
-}
-
-void Serialization::save(void *source, const Object *object, int format)
-{
-    if (source == nullptr)
-        return;
-
-    switch (format) {
-    case Json:
-        JsonSerialization::save(*static_cast<QJsonObject *>(source), object);
-        break;
-    }
+    if (JsonSerialization::support(source.metaType()))
+        JsonSerialization::save(source, object);
 }
 
 void Serialization::load(const QJsonObject &json, Object *object)
@@ -60,3 +40,10 @@ bool Serialization::writeProperty(const QString &name, const QVariant &value, Ob
 }
 
 } // namespace GenO
+
+QDebug operator<<(QDebug debug, GenO::Object &object)
+{
+    QJsonObject json;
+    GenO::JsonSerialization::save(json, &object);
+    return debug << json;
+}

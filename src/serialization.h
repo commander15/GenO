@@ -12,15 +12,8 @@ class Object;
 class GENO_EXPORT Serialization
 {
 public:
-    enum Format {
-        Json
-    };
-
-    static void load(const QVariant &source, Object *object, int format);
-    static void save(QVariant &source, const Object *object, int format);
-
-    static void load(const void *source, Object *object, int format);
-    static void save(void *source, const Object *object, int format);
+    static void load(const QVariant &source, Object *object);
+    static void save(QVariant &source, const Object *object);
 
     static void load(const QJsonObject &json, Object *object);
     static void save(QJsonObject &json, const Object *object);
@@ -31,5 +24,7 @@ protected:
 };
 
 } // namespace GenO
+
+GENO_EXPORT QDebug operator<<(QDebug debug, GenO::Object &object);
 
 #endif // GENO_SERIALIZATION_H

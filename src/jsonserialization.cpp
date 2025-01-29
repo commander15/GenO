@@ -9,6 +9,34 @@
 
 namespace GenO {
 
+bool JsonSerialization::support(const QMetaType &type)
+{
+    return type == QMetaType::fromType<QJsonObject>() || type == QMetaType::fromType<QJsonValue>();
+}
+
+void JsonSerialization::load(const QVariant &value, Object *object)
+{
+    const QMetaType type = value.metaType();
+
+    if (type == QMetaType::fromType<QJsonObject>())
+        load(value.toJsonObject(), object);
+    else if (type == QMetaType::fromType<QJsonValue>())
+        load(value.toJsonValue().toObject(), object);
+}
+
+void JsonSerialization::save(QVariant &value, const Object *object)
+{
+    const QMetaType type = value.metaType();
+
+    if (type == QMetaType::fromType<QJsonObject>()) {
+        save(*static_cast<QJsonObject *>(value.data()), object);
+    } else if (type == QMetaType::fromType<QJsonValue>()) {
+        QJsonObject o = value.toJsonValue().toObject();
+        save(o, object);
+        value = QJsonValue(o);
+    }
+}
+
 void JsonSerialization::load(const QJsonObject &json, Object *object)
 {
     const QStringList properties = json.keys();
@@ -70,18 +98,6 @@ void JsonSerialization::save(QJsonObject &json, const Object *object)
 }
 
 } // namespace GenO
-
-GenO::Object &operator<<(GenO::Object &object, const QJsonObject &json)
-{
-    GenO::JsonSerialization::load(json, &object);
-    return object;
-}
-
-const GenO::Object &operator>>(const GenO::Object &object, QJsonObject &json)
-{
-    GenO::JsonSerialization::save(json, &object);
-    return object;
-}
 
 const QJsonObject &operator<<(const QJsonObject &json, GenO::Object &object)
 {
