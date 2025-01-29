@@ -35,24 +35,21 @@ public:
 
 G_REGISTER(Experiment)
 
+class ComplexExperiment;
 class ComplexExperiment : public Experiment
 {
     Q_GADGET
     Q_PROPERTY(QList<Sample> samples MEMBER samples)
+    Q_PROPERTY(QList<ComplexExperiment> subExperiments MEMBER subExperiments)
 
     G_OBJECT(ComplexExperiment)
     G_RESOURCE("/complex/experiments")
 
 public:
     QList<Sample> samples;
+    QList<ComplexExperiment> subExperiments;
 };
 
 G_REGISTER(ComplexExperiment)
-
-class ObjectTest : public testing::Test
-{
-public:
-    Experiment experiment;
-};
 
 #endif // OBJECTTEST_H
