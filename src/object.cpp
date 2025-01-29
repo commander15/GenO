@@ -185,6 +185,12 @@ bool Object::isSubObject(const QString &propertyName) const
     return (object ? object->inherits(&staticMetaObject) : false);
 }
 
+QMetaType Object::subObjectType(const QString &property) const
+{
+    const QVariant value = readProperty(property);
+    return value.metaType();
+}
+
 bool Object::isList(const QString &propertyName) const
 {
     const QVariant value = readProperty(propertyName);

@@ -71,6 +71,7 @@ public:
     QString string(const QString &property) const;
 
     bool isSubObject(const QString &propertyName) const;
+    QMetaType subObjectType(const QString &property) const;
 
     bool isList(const QString &propertyName) const;
     QMetaType listItemType(const QString &propertyName) const;
