@@ -70,3 +70,27 @@ void JsonSerialization::save(QJsonObject &json, const Object *object)
 }
 
 } // namespace GenO
+
+GenO::Object &operator<<(GenO::Object &object, const QJsonObject &json)
+{
+    GenO::JsonSerialization::load(json, &object);
+    return object;
+}
+
+const GenO::Object &operator>>(const GenO::Object &object, QJsonObject &json)
+{
+    GenO::JsonSerialization::save(json, &object);
+    return object;
+}
+
+const QJsonObject &operator<<(const QJsonObject &json, GenO::Object &object)
+{
+    GenO::JsonSerialization::load(json, &object);
+    return json;
+}
+
+QJsonObject &operator>>(QJsonObject &json, const GenO::Object &object)
+{
+    GenO::JsonSerialization::save(json, &object);
+    return json;
+}

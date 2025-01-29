@@ -19,4 +19,10 @@ public:
 
 } // namespace GenO
 
+GenO::Object &operator<<(GenO::Object &object, const QJsonObject &json);
+const GenO::Object &operator>>(const GenO::Object &object, QJsonObject &json);
+
+const QJsonObject &operator<<(const QJsonObject &json, GenO::Object &object);
+QJsonObject &operator>>(QJsonObject &json, const GenO::Object &object);
+
 #endif // JSONSERIALIZATION_H
