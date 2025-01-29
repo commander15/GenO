@@ -22,26 +22,40 @@
 public: \
     const QMetaObject *instanceMetaObject() const override \
     { return &ClassName::staticMetaObject; } \
-protected: \
-    void registerType() const override { \
+    static void registerClass() { \
         qRegisterMetaType<ClassName>(); \
         if (QMetaType::hasRegisteredConverterFunction<QVariantList, QList<ClassName>>()) \
             return; \
         QMetaType::registerConverter<QVariantList, QList<ClassName>>([](const QVariantList &list) { \
-                QList<ClassName> result; \
-                for (const QVariant &item : list) \
-                    if (item.canConvert<ClassName>()) \
-                        result.append(item.value<ClassName>()); \
-                return result; \
+            QList<ClassName> result; \
+            for (const QVariant &item : list) \
+                if (item.canConvert<ClassName>()) \
+                    result.append(item.value<ClassName>()); \
+            return result; \
         }); \
-    }
+    } \
+protected: \
+    void registerType() const override \
+    { ClassName::registerClass(); }
 
 #define G_METHODS_IMPL(ClassName) \
 public: \
     static ClassName fromJson(const QJsonObject &json) \
-    { ClassName object; GenO::Serialization::load(json, &object); return object; }
+    { return GenO::Object::fromJson<ClassName>(json); }
 
-#define G_REGISTER_IMPL(ClassName) //Q_DECLARE_METATYPE(ClassName)
+#define G_REGISTER_IMPL(ClassName) \
+class ClassName##Registrator : public GenO::ObjectRegistrator \
+{ \
+public: \
+    ClassName##Registrator() \
+    { registerType(); } \
+    void registerType() override {\
+        ClassName::registerClass(); \
+        qDebug() << #ClassName << "class registered !"; \
+    } \
+}; \
+static ClassName##Registrator ClassName##Reg;
+
 
 namespace GenO {
 
@@ -80,7 +94,11 @@ public:
     bool isEmpty() const override;
 
     static Object fromJson(const QJsonObject &json);
+    template<typename T> static T fromJson(const QJsonObject &json);
     QJsonObject toJsonObject() const;
+
+    template<typename T>
+    T to() const;
 
     const QMetaObject *metaObject() const override;
     virtual const QMetaObject *instanceMetaObject() const;
@@ -142,6 +160,28 @@ private:
 
     friend class Object;
 };
+
+class GENO_EXPORT ObjectRegistrator
+{
+public:
+    virtual void registerType() = 0;
+};
+
+template<typename T>
+inline T Object::to() const
+{
+    T object;
+    sync(object, *this);
+    return object;
+}
+
+template<typename T>
+inline T Object::fromJson(const QJsonObject &json)
+{
+    T object;
+    Serialization::load(json, &object);
+    return object;
+}
 
 } // namespace GenO
 

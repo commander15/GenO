@@ -206,6 +206,10 @@ QMetaType Object::listItemType(const QString &propertyName) const
 
     if (typeName.startsWith("QList<") && typeName.endsWith(">"))
         return QMetaType::fromName(typeName.mid(6, typeName.length() - 7).toLatin1());
+    else if (typeName == "QStringList")
+        return QMetaType::fromType<QString>();
+    else if (typeName == "QByteArrayList")
+        return QMetaType::fromType<QByteArray>();
     else
         return QMetaType();
 }
