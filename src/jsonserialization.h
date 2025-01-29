@@ -20,6 +20,9 @@ public:
 
     static void load(const QJsonObject &json, Object *object);
     static void save(QJsonObject &json, const Object *object);
+
+    static QString propertyName(const QString &fieldName);
+    static QString fieldName(const QString &propertyName);
 };
 
 } // namespace GenO
