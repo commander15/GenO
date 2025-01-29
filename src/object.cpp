@@ -157,6 +157,26 @@ QStringList Object::propertyNames() const
     return properties;
 }
 
+bool Object::boolean(const QString &property) const
+{
+    return this->property(property).toBool();
+}
+
+int Object::integer(const QString &property) const
+{
+    return this->property(property).toInt();
+}
+
+double Object::number(const QString &property) const
+{
+    return this->property(property).toDouble();
+}
+
+QString Object::string(const QString &property) const
+{
+    return this->property(property).toString();
+}
+
 bool Object::isSubObject(const QString &propertyName) const
 {
     const QVariant value = readProperty(propertyName);

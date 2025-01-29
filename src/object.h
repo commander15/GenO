@@ -65,6 +65,11 @@ public:
     void setProperty(const QString &name, const QVariant &value);
     QStringList propertyNames() const override;
 
+    bool boolean(const QString &property) const;
+    int integer(const QString &property) const;
+    double number(const QString &property) const;
+    QString string(const QString &property) const;
+
     bool isSubObject(const QString &propertyName) const;
 
     bool isList(const QString &propertyName) const;
