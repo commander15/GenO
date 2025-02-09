@@ -1,41 +1,25 @@
-qt_add_library(GenO)
+include(CMakePackageConfigHelpers)
 
-configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h @ONLY)
-
-target_headers(GenO
-    PUBLIC
-        global.h config.h
-        objectinterface.h object.h
-        serialization.h
-        jsonserialization.h
-    PRIVATE
-        debug_p.h
-        object_p.h
+configure_package_config_file(
+    GenOConfig.cmake.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/GenOConfig.cmake
+    INSTALL_DESTINATION lib/cmake/GenO
 )
 
-target_sources(GenO
-    PRIVATE
-        debug.cpp
-        objectinterface.cpp object.cpp
-        serialization.cpp
-        jsonserialization.cpp
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/GenOConfigVersion.cmake
+    VERSION ${PROJECT_VERSION} COMPATIBILITY AnyNewerVersion
+    ARCH_INDEPENDENT
+
 )
 
-target_include_directories(GenO PUBLIC $<INSTALL_INTERFACE:include>)
+add_subdirectory(lib)
 
-target_link_libraries(GenO PUBLIC Qt::Core)
-
-if (BUILD_SHARED_LIBS)
-    set(GENO_BUILD_TYPE SHARED)
-else()
-    set(GENO_BUILD_TYPE STATIC)
-endif()
-
-target_compile_definitions(GenO
-    PUBLIC
-        GENO_LIB GENO_${GENO_BUILD_TYPE}
-    PRIVATE
-        GENO_BUILD
+install(FILES GenOConfig.cmake GenOConfigVersion.cmake
+    DESTINATION lib/cmake/GenO
 )
 
-generate_target_headers(GenO FOLDER GenO)
+install(EXPORT GenOTargets
+    NAMESPACE GenO::
+    DESTINATION lib/cmake/GenO
+)
