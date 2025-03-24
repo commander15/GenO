@@ -130,14 +130,14 @@ void Object::setProperty(const QString &name, const QVariant &value)
 
     // Propagate the changes back up to the root
     for (int i = path.size() - 2; i >= 0; --i) {
-        QVariant updatedValue = QVariant::fromMetaType(currentObject->instanceMetaObject()->metaType(), currentObject); // Wrap the updated object
+        QVariant updatedValue = QVariant(currentObject->instanceMetaObject()->metaType(), currentObject); // Wrap the updated object
         currentObject = reinterpret_cast<Object*>(nestedValue.data());
 
         if (!currentObject)
             return;
 
         currentObject->writeProperty(path.at(i), updatedValue); // Update parent object
-        nestedValue = QVariant::fromMetaType(currentObject->instanceMetaObject()->metaType(), currentObject);
+        nestedValue = QVariant(currentObject->instanceMetaObject()->metaType(), currentObject);
     }
 
     // Finally, update the root object

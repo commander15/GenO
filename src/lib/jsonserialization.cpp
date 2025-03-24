@@ -79,7 +79,7 @@ void JsonSerialization::load(const QJsonObject &json, Object *object)
                 if (isGObject) {
                     Object *o = static_cast<Object *>(type.create());
                     load(itemValue.toObject(), o);
-                    items.append(QVariant::fromMetaType(type, o));
+                    items.append(QVariant(type, o));
                     type.destroy(o);
                 } else {
                     items.append(itemValue.toVariant());

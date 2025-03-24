@@ -4,13 +4,13 @@
 #include <GenO/config.h>
 
 #ifdef GENO_SHARED
-#ifdef GENO_BUILD
-#define GENO_EXPORT Q_DECL_EXPORT
+#   ifdef GENO_BUILD
+#       define GENO_EXPORT Q_DECL_EXPORT
+#   else
+#       define GENO_EXPORT Q_DECL_IMPORT
+#   endif
 #else
-#define GENO_EXPORT Q_DECL_IMPORT
-#endif
-#else
-#define GENO_EXPORT
+#   define GENO_EXPORT
 #endif
 
 #define GENO_Q(ClassName) ClassName *q = static_cast<ClassName *>(q_ptr)

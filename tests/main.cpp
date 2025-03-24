@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <QCoreApplication>
-#include <QLoggingCategory>
+#include <QtCore/qcoreapplication.h>
+#include <QtCore/qloggingcategory.h>
 
 int main(int argc, char *argv[])
 {

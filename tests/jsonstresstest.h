@@ -14,8 +14,7 @@ protected:
     QJsonValue loadJsonFile(const QString &filePath)
     {
         QFile file(QStringLiteral(ROOT_DIR) + '/' + filePath);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        {
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             throw std::runtime_error(("Failed to open file: " + filePath.toStdString()).c_str());
         }
 

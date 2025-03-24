@@ -1,9 +1,15 @@
 qt_add_library(GenO)
 
+set_target_properties(GenO PROPERTIES
+    OUTPUT_NAME GenO
+    VERSION     ${PROJECT_VERSION}
+)
+
 configure_file(config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h @ONLY)
 
 target_headers(GenO
     PUBLIC
+        geno.h
         global.h config.h
         objectinterface.h object.h
         serialization.h
@@ -21,29 +27,30 @@ target_sources(GenO
         jsonserialization.cpp
 )
 
-target_include_directories(GenO PUBLIC $<INSTALL_INTERFACE:include>)
-
-target_link_libraries(GenO PUBLIC Qt::Core)
-
-if (BUILD_SHARED_LIBS)
-    set(GENO_BUILD_TYPE SHARED)
-else()
-    set(GENO_BUILD_TYPE STATIC)
-endif()
+target_include_directories(GenO 
+    PUBLIC
+        $<INSTALL_INTERFACE:include>
+        $<INSTALL_INTERFACE:include/GenO>
+)
 
 target_compile_definitions(GenO
     PUBLIC
-        GENO_LIB GENO_${GENO_BUILD_TYPE}
+        $<IF:$<STREQUAL:$<TARGET_PROPERTY:TYPE>,STATIC_LIBRARY>,GENO_STATIC,GENO_SHARED>
+    INTERFACE
+        GENO_LIB
     PRIVATE
         GENO_BUILD
 )
 
-generate_target_headers(GenO FOLDER GenO)
+target_link_libraries(GenO PUBLIC Qt::Core)
 
 install(TARGETS GenO
     EXPORT GenOTargets
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
-    PUBLIC_HEADER DESTINATION include/GenO
+    ARCHIVE        DESTINATION lib
+    LIBRARY        DESTINATION lib
+    RUNTIME        DESTINATION bin
+    PUBLIC_HEADER  DESTINATION include/GenO
+    #PRIVATE_HEADER DESTINATION include/GenO/private
 )
+
+generate_target_headers(GenO FOLDER GenO)
